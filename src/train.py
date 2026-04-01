@@ -58,3 +58,14 @@ with mlflow.start_run():
 
 import joblib
 joblib.dump(model, "model.pkl")
+
+import json
+
+metrics = {
+    "accuracy": acc,
+    "Name": "Harshada Raut",
+    "Roll No": "2022bcd0053"
+}
+
+with open("metrics.json", "w") as f:
+    json.dump(metrics, f)

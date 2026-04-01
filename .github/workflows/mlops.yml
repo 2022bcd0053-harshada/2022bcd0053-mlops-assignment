@@ -6,31 +6,45 @@ on:
       - main
 
 jobs:
-  train:
+  mlops-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
 
-    - uses: actions/setup-python@v4
+    # 1. Code Checkout ✅
+    - name: Code Checkout
+      uses: actions/checkout@v3
+
+    # 2. Dependency Installation ✅
+    - name: Setup Python
+      uses: actions/setup-python@v4
       with:
         python-version: 3.11
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: |
         pip install --upgrade pip
         pip install -r requirements.txt
         pip install dvc[s3] mlflow
 
-    - name: Configure AWS credentials
+    # AWS setup (needed for DVC)
+    - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Pull data
+    # 3. DVC Data Pull ✅
+    - name: DVC Data Pull
       run: dvc pull
 
-    - name: Train model
+    # 4 + 5. Model Training + MLflow Logging ✅
+    - name: Train Model & Log to MLflow
       run: python src/train.py
+
+    # 6. Metrics Generation (Explicit) ✅
+    - name: Display Metrics
+      run: |
+        echo "Metrics generated:"
+        cat metrics.json || echo "metrics.json not found"
